@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "960322186398",
+    "project_id": "prezent-27ff1",
+    "storage_bucket": "prezent-27ff1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:960322186398:android:80d8925022e896e56b9f8f",
+        "android_client_info": {
+          "package_name": "com.zdem.prezent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "960322186398-7aktah022opn040ro04416mi50trqmta.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zdem.prezent",
+            "certificate_hash": "29961bb6512aa1904b75227a006ae0994e3f7c99"
+          }
+        },
+        {
+          "client_id": "960322186398-tun846pgvi0gh4al7julsi4u90k5m378.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgeTJxMOmkZiRMG8ivcQHjrV3UN_H3YEc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "960322186398-tun846pgvi0gh4al7julsi4u90k5m378.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

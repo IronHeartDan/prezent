@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           if (!codeSent) {
                             var uri = Uri.parse(
-                                "${Constants().serverUrl}/exists/$phone");
+                                "${Constants.serverUrl}/exists/$phone");
                             var response = await http.get(uri);
                             exists = response.statusCode == 200 ? true : false;
 

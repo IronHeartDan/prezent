@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen>
     var phoneNumber =
         FirebaseAuth.instance.currentUser!.phoneNumber.toString().substring(3);
     var res =
-        await http.get(Uri.parse("${Constants().serverUrl}/user/$phoneNumber"));
+        await http.get(Uri.parse("${Constants.serverUrl}/user/$phoneNumber"));
     if (res.statusCode == 200) {
       user = PUser.fromJson(const JsonDecoder().convert(res.body));
       return;
@@ -48,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> getHome() async {
     List<Post> postsList = [];
     var res = await http
-        .get(Uri.parse("${Constants().serverUrl}/${user.username}/home"));
+        .get(Uri.parse("${Constants.serverUrl}/${user.username}/home"));
     try {
       (json.decode(res.body)).forEach((element) {
         postsList.add(Post(
@@ -78,51 +78,80 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return RefreshIndicator(
-        onRefresh: () {
-          return getHome();
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+             SliverAppBar(
+              title: const Text(
+                "Prezent",
+                style: TextStyle(color: Colors.black),
+              ),
+              actions: [
+                InkWell(
+                  onTap: (){
+
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(
+                      Icons.message,
+                      color: Colors.black,
+                    ),
+                  ),
+                )
+              ],
+              backgroundColor: Colors.transparent,
+            )
+          ];
         },
-        child: StreamBuilder(
-            stream: _streamControllerPosts.stream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                List<Post> posts = (snapshot.data as List<Post>);
-                return ListView.builder(
-                    physics: const BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics()),
-                    itemCount: posts.length,
-                    itemBuilder: (context, index) {
-                      var post = posts[index];
-                      return Card(
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.person),
-                                  Text(post.userName),
-                                ],
-                              ),
+        body: RefreshIndicator(
+            onRefresh: () {
+              return getHome();
+            },
+            child: StreamBuilder(
+                stream: _streamControllerPosts.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<Post> posts = (snapshot.data as List<Post>);
+                    return ListView.builder(
+                        physics: const BouncingScrollPhysics(
+                            parent: AlwaysScrollableScrollPhysics()),
+                        itemCount: posts.length,
+                        itemBuilder: (context, index) {
+                          var post = posts[index];
+                          return Card(
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.person),
+                                      Text(post.userName),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: double.infinity,
+                                  height: 300,
+                                  child: Icon(
+                                    Icons.image,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(
-                              width: double.infinity,
-                              height: 300,
-                              child: Icon(
-                                Icons.image,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    });
-              } else {
-                return const Center(
-                    child: SizedBox(
-                        width: 50,
-                        height: 50,
-                        child: CircularProgressIndicator()));
-              }
-            }));
+                          );
+                        });
+                  } else {
+                    return const Center(
+                        child: SizedBox(
+                            width: 50,
+                            height: 50,
+                            child: CircularProgressIndicator()));
+                  }
+                })),
+      ),
+    );
   }
 }

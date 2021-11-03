@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:prezent/constants.dart';
 import 'package:prezent/screens/main_screen.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
@@ -51,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           if (!codeSent) {
                             var uri = Uri.parse(
-                                "http://172.20.10.5:3000/exists/$phone");
+                                "${Constants().serverUrl}/exists/$phone");
                             var response = await http.get(uri);
                             exists = response.statusCode == 200 ? true : false;
 

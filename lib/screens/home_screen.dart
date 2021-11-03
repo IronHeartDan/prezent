@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:prezent/classes/p_post.dart';
 import 'package:prezent/classes/p_user.dart';
+
+import '../constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,28 +20,38 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin<HomeScreen> {
   late PUser user;
+  late StreamController _streamControllerPosts;
 
-  Future getUser() async {
+  @override
+  void initState() {
+    _streamControllerPosts = StreamController();
+    getUser().then((value) {
+      print("Fetch Home");
+      getHome();
+    });
+    super.initState();
+  }
+
+  Future<void> getUser() async {
     var phoneNumber =
         FirebaseAuth.instance.currentUser!.phoneNumber.toString().substring(3);
     var res =
-        await http.get(Uri.parse("http://172.20.10.5:3000/user/$phoneNumber"));
+        await http.get(Uri.parse("${Constants().serverUrl}/user/$phoneNumber"));
     if (res.statusCode == 200) {
       user = PUser.fromJson(const JsonDecoder().convert(res.body));
-      return true;
+      return;
     } else {
       return Future.error("error");
     }
   }
 
-  Future getHome() async {
-    List<Post> list = [];
-
+  Future<void> getHome() async {
+    List<Post> postsList = [];
     var res = await http
-        .get(Uri.parse("http://172.20.10.5:3000/${user.username}/home"));
+        .get(Uri.parse("${Constants().serverUrl}/${user.username}/home"));
     try {
       (json.decode(res.body)).forEach((element) {
-        list.add(Post(
+        postsList.add(Post(
             element["_id"],
             element["numberoflikes"],
             element["numberofcomments"],
@@ -54,8 +67,9 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       print(e);
     }
-
-    return list;
+    print(postsList);
+    _streamControllerPosts.add(postsList);
+    return;
   }
 
   @override
@@ -64,55 +78,51 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return FutureBuilder(
-        future: getUser(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return FutureBuilder(
-                future: getHome(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    List<Post> posts = (snapshot.data as List<Post>);
-                    return ListView.builder(
-                        itemCount: posts.length,
-                        itemBuilder: (context, index) {
-                          var post = posts[index];
-                          return Card(
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.person),
-                                      Text(post.userName),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: double.infinity,
-                                  height: 300,
-                                  child: Icon(
-                                    Icons.image,
-                                  ),
-                                ),
-                              ],
+    return RefreshIndicator(
+        onRefresh: () {
+          return getHome();
+        },
+        child: StreamBuilder(
+            stream: _streamControllerPosts.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<Post> posts = (snapshot.data as List<Post>);
+                return ListView.builder(
+                    physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics()),
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      var post = posts[index];
+                      return Card(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.person),
+                                  Text(post.userName),
+                                ],
+                              ),
                             ),
-                          );
-                        });
-                  } else {
-                    return const Center(
-                        child: SizedBox(
-                            width: 50,
-                            height: 50,
-                            child: CircularProgressIndicator()));
-                  }
-                });
-          } else {
-            return const Center(
-                child: SizedBox(
-                    width: 50, height: 50, child: CircularProgressIndicator()));
-          }
-        });
+                            const SizedBox(
+                              width: double.infinity,
+                              height: 300,
+                              child: Icon(
+                                Icons.image,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+              } else {
+                return const Center(
+                    child: SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: CircularProgressIndicator()));
+              }
+            }));
   }
 }

@@ -11,17 +11,4 @@ class Post {
 
   Post(this._id, this.numberOfLikes, this.numberOfComments,this.hashTags,
       this.timeStamp, this.userName, this.type, this.data, this.userDetail);
-
-  factory Post.fromJson(Map<String, dynamic> resJson) {
-    return Post(
-        resJson["_id"],
-        resJson["numberoflikes"],
-        resJson["numberofcomments"],
-        resJson["hashtages"],
-        resJson["timestamp"],
-        resJson["userName"],
-        resJson["type"],
-        resJson["data"],
-        resJson["userDetail"]);
-  }
 }

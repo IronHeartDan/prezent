@@ -1,8 +1,13 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:prezent/classes/p_user.dart';
 import 'package:prezent/screens/login.dart';
+import 'package:prezent/screens/profile_screen.dart';
+import 'package:prezent/screens/search_screen.dart';
+
+import 'home_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -11,25 +16,19 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int currentScreen = 0;
+  late TabController _tabController;
 
   @override
   void initState() {
-    getUser();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        currentScreen = _tabController.index;
+      });
+    });
     super.initState();
-  }
-
-  void getUser() async {
-    var phoneNumber =
-        FirebaseAuth.instance.currentUser!.phoneNumber.toString().substring(3);
-    var res =
-        await http.get(Uri.parse("http://172.20.10.5:3000/user/$phoneNumber"));
-    if (res.statusCode == 200) {
-      print(res.body);
-    } else {
-      // Show err
-    }
   }
 
   @override
@@ -37,9 +36,11 @@ class _MainScreenState extends State<MainScreen> {
     return SafeArea(
         child: Scaffold(
       resizeToAvoidBottomInset: true,
-      body: const Center(
-        child: Text("Home"),
-      ),
+      body: TabBarView(controller: _tabController, children: const [
+        HomeScreen(),
+        SearchScreen(),
+        ProfileScreen()
+      ]),
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -71,6 +72,7 @@ class _MainScreenState extends State<MainScreen> {
         onTap: (index) {
           setState(() {
             currentScreen = index;
+            _tabController.index = index;
             if (index == 3) {
               FirebaseAuth.instance.signOut().then((value) {
                 Navigator.of(context).pushAndRemoveUntil(

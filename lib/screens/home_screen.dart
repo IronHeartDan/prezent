@@ -32,10 +32,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future getHome() async {
+    List<Post> list = [];
+
     var res = await http
         .get(Uri.parse("http://172.20.10.5:3000/${user.username}/home"));
     try {
-      List<Post> list = [];
       (json.decode(res.body)).forEach((element) {
         list.add(Post(
             element["_id"],
@@ -53,6 +54,8 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (e) {
       print(e);
     }
+
+    return list;
   }
 
   @override
@@ -69,9 +72,34 @@ class _HomeScreenState extends State<HomeScreen>
                 future: getHome(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
-                    return const Center(
-                      child: Text("Home Data Loaded"),
-                    );
+                    List<Post> posts = (snapshot.data as List<Post>);
+                    return ListView.builder(
+                        itemCount: posts.length,
+                        itemBuilder: (context, index) {
+                          var post = posts[index];
+                          return Card(
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.person),
+                                      Text(post.userName),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: double.infinity,
+                                  height: 300,
+                                  child: Icon(
+                                    Icons.image,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
                   } else {
                     return const Center(
                         child: SizedBox(

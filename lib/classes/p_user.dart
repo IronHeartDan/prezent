@@ -1,5 +1,5 @@
 class PUser {
-  String _id;
+  String id;
   String? profilepicture;
   String username;
   String fullname;
@@ -8,7 +8,7 @@ class PUser {
   int? followersCount;
   int? numberofpost;
 
-  PUser(this._id, this.profilepicture, this.username, this.fullname,this.email,
+  PUser(this.id, this.profilepicture, this.username, this.fullname, this.email,
       this.followingCount, this.followersCount, this.numberofpost);
 
   factory PUser.fromJson(Map<String, dynamic> json) {

@@ -1,7 +1,11 @@
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:prezent/classes/p_user.dart';
+import 'package:http/http.dart' as http;
+import 'package:prezent/constants.dart';
 
 class EditProfileScreen extends StatefulWidget {
   PUser pUser;
@@ -13,6 +17,39 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  final TextEditingController _controllerUsername = TextEditingController(),
+      _controllerFullname = TextEditingController(),
+      _controllerEmail = TextEditingController(),
+      _controllerPhone = TextEditingController();
+  bool isChanged = false;
+
+  @override
+  void initState() {
+    setState(() {
+      _controllerEmail.text = widget.pUser.email!;
+      _controllerUsername.text = widget.pUser.username;
+      _controllerPhone.text = widget.pUser.numberofpost!.toString();
+      _controllerFullname.text = widget.pUser.fullname;
+    });
+    super.initState();
+  }
+
+  void OnChange() {
+    if (_controllerEmail.text.trim().toString() != widget.pUser.email ||
+        _controllerUsername.text.trim().toString() != widget.pUser.username ||
+        _controllerFullname.text.trim().toString() != widget.pUser.fullname ||
+        _controllerPhone.text.trim().toString() !=
+            widget.pUser.numberofpost.toString()) {
+      setState(() {
+        isChanged = true;
+      });
+    } else {
+      setState(() {
+        isChanged = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -20,6 +57,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             title: const Text("Edit Profile"),
+            systemOverlayStyle: const SystemUiOverlayStyle(
+                statusBarBrightness: Brightness.light),
           ),
           body: SizedBox(
             width: double.infinity,
@@ -44,8 +83,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 20,
                     ),
                     TextFormField(
-                      initialValue: widget.pUser.username,
+                      controller: _controllerUsername,
                       keyboardType: TextInputType.text,
+                      onChanged: (value) {
+                        OnChange();
+                      },
                       decoration: const InputDecoration(
                           label: Text("Username"),
                           border: OutlineInputBorder()),
@@ -54,8 +96,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 20,
                     ),
                     TextFormField(
-                      initialValue: widget.pUser.fullname,
+                      controller: _controllerFullname,
                       keyboardType: TextInputType.text,
+                      onChanged: (value) {
+                        OnChange();
+                      },
                       decoration: const InputDecoration(
                           label: Text("Fullname"),
                           border: OutlineInputBorder()),
@@ -64,8 +109,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 20,
                     ),
                     TextFormField(
-                      initialValue: widget.pUser.email,
+                      controller: _controllerEmail,
                       keyboardType: TextInputType.text,
+                      onChanged: (value) {
+                        OnChange();
+                      },
                       decoration: const InputDecoration(
                           label: Text("Email"), border: OutlineInputBorder()),
                     ),
@@ -73,18 +121,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       height: 20,
                     ),
                     TextFormField(
-                      initialValue: widget.pUser.numberofpost.toString(),
+                      controller: _controllerPhone,
                       keyboardType: TextInputType.text,
+                      onChanged: (value) {
+                        OnChange();
+                      },
                       decoration: const InputDecoration(
                           label: Text("Phone"), border: OutlineInputBorder()),
                     ),
                     const SizedBox(
                       height: 20,
                     ),
-                    Row(children: const [
+                    Row(children: [
                       Expanded(
                         child: ElevatedButton(
-                            onPressed: null, child: Text("Save")),
+                            onPressed: isChanged
+                                ? () async {
+                                    var res = await http.patch(
+                                        Uri.parse(
+                                            "${Constants.serverUrl}/usercollection/${widget.pUser.id}"),
+                                        body: json.encode(
+                                            '{"username":${_controllerUsername.text.trim()},"fullname":${_controllerFullname.text.trim().toString()},"emailaddress":${_controllerEmail.text.trim().toString()},"numberofpost":${_controllerPhone.text.trim().toString()}}'));
+                                    if (res.statusCode == 200) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                              content: Text("Sucess")));
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  "Error ${res.statusCode}")));
+                                    }
+                                  }
+                                : null,
+                            child: const Text("Save")),
                       ),
                     ]),
                   ],

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:prezent/classes/p_sub_user.dart';
 import 'package:prezent/classes/p_user.dart';
 import 'package:prezent/constants.dart';
+import 'package:prezent/screens/edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -67,49 +68,49 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () {
-          return getUserProfile();
-        },
-        child: StreamBuilder(
-            stream: _streamControllerProfile.stream,
-            builder: (context, snapshot) {
-              PUser? pUser;
-              if (snapshot.hasData) {
-                pUser = (snapshot.data as PUser);
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          children: [
-                            Column(
-                              children: [
-                                Container(
-                                  width: 75,
-                                  height: 75,
-                                  decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: AssetImage(
-                                            "assets/defaultUserPic.png"),
-                                      )),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Text(pUser.username),
-                                const SizedBox(
-                                  height: 2,
-                                ),
-                                Text(pUser.fullname)
-                              ],
-                            ),
-                            Expanded(
-                                child: Row(
+      body: StreamBuilder(
+          stream: _streamControllerProfile.stream,
+          builder: (context, snapshot) {
+            PUser? pUser;
+            if (snapshot.hasData) {
+              pUser = (snapshot.data as PUser);
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        children: [
+                          Column(
+                            children: [
+                              Container(
+                                width: 75,
+                                height: 75,
+                                decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      fit: BoxFit.fill,
+                                      image: AssetImage(
+                                          "assets/defaultUserPic.png"),
+                                    )),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(pUser.username),
+                              const SizedBox(
+                                height: 2,
+                              ),
+                              Text(pUser.fullname)
+                            ],
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Expanded(
+                              child: Column(children: [
+                            Row(
                               children: [
                                 Expanded(
                                   child: Column(
@@ -343,21 +344,40 @@ class _ProfileScreenState extends State<ProfileScreen>
                                   ),
                                 )
                               ],
-                            ))
-                          ],
-                        ),
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditProfileScreen(
+                                                      pUser: pUser!,
+                                                    )));
+                                      },
+                                      child: const Text("Edit Profile")),
+                                )
+                              ],
+                            ),
+                          ]))
+                        ],
                       ),
-                      const Divider(
-                        thickness: 2,
-                      ),
-                    ],
-                  ),
-                );
-              } else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            }),
-      ),
+                    ),
+                    const Divider(
+                      thickness: 2,
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          }),
     );
   }
 

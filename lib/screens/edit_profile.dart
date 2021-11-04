@@ -137,11 +137,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: ElevatedButton(
                             onPressed: isChanged
                                 ? () async {
+                                    var body = {
+                                      "username": _controllerUsername.text
+                                          .trim()
+                                          .toString(),
+                                      "fullname": _controllerFullname.text
+                                          .trim()
+                                          .toString(),
+                                      "emailaddress": _controllerEmail.text
+                                          .trim()
+                                          .toString(),
+                                      "numberofpost": _controllerPhone.text
+                                          .trim()
+                                          .toString()
+                                    };
                                     var res = await http.patch(
                                         Uri.parse(
                                             "${Constants.serverUrl}/usercollection/${widget.pUser.id}"),
-                                        body: json.encode(
-                                            '{"username":${_controllerUsername.text.trim()},"fullname":${_controllerFullname.text.trim().toString()},"emailaddress":${_controllerEmail.text.trim().toString()},"numberofpost":${_controllerPhone.text.trim().toString()}}'));
+                                        headers: {
+                                          "content-type": "application/json"
+                                        },
+                                        body: jsonEncode(body));
                                     if (res.statusCode == 200) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(

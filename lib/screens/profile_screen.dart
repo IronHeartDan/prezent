@@ -49,6 +49,20 @@ class _ProfileScreenState extends State<ProfileScreen>
     return followings;
   }
 
+  Future getFollowers(PUser pUser) async {
+    List<PSubUser> followings = [];
+    var res = await http
+        .get(Uri.parse("${Constants.serverUrl}/${pUser.username}/followers"));
+    try {
+      json.decode(res.body).forEach((element) {
+        followings.add(PSubUser.fromJson(element));
+      });
+    } catch (e) {
+      print(e);
+    }
+    return followings;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -110,11 +124,112 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     onTap: () {},
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        children: [
-                                          Text(pUser.followersCount.toString()),
-                                          const Text("Followers")
-                                        ],
+                                      child: InkWell(
+                                        onTap: () {
+                                          showModalBottomSheet(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Column(
+                                                  children: [
+                                                    const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(8.0),
+                                                      child: Text("Followers"),
+                                                    ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Expanded(
+                                                      child: FutureBuilder(
+                                                          future: getFollowers(
+                                                              pUser!),
+                                                          builder: (context,
+                                                              snapshot) {
+                                                            print(snapshot
+                                                                .hasData);
+                                                            print(
+                                                                snapshot.data);
+                                                            if (snapshot
+                                                                    .hasData &&
+                                                                snapshot.connectionState ==
+                                                                    ConnectionState
+                                                                        .done) {
+                                                              List<PSubUser>
+                                                                  followers =
+                                                                  (snapshot.data
+                                                                      as List<
+                                                                          PSubUser>);
+                                                              return ListView
+                                                                  .builder(
+                                                                      itemCount:
+                                                                          followers
+                                                                              .length,
+                                                                      itemBuilder:
+                                                                          (context,
+                                                                              index) {
+                                                                        PSubUser
+                                                                            follower =
+                                                                            followers[index];
+                                                                        return Card(
+                                                                          child:
+                                                                              Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.all(10.0),
+                                                                            child:
+                                                                                Row(
+                                                                              children: [
+                                                                                Container(
+                                                                                  width: 40,
+                                                                                  height: 40,
+                                                                                  decoration: const BoxDecoration(
+                                                                                      shape: BoxShape.circle,
+                                                                                      image: DecorationImage(
+                                                                                        fit: BoxFit.fill,
+                                                                                        image: AssetImage("assets/defaultUserPic.png"),
+                                                                                      )),
+                                                                                ),
+                                                                                const SizedBox(
+                                                                                  width: 10,
+                                                                                ),
+                                                                                Text(follower.username),
+                                                                                const Expanded(
+                                                                                  child: Text(""),
+                                                                                ),
+                                                                                ElevatedButton(
+                                                                                    onPressed: () async {
+                                                                                      var res = await http.delete(Uri.parse("${Constants.serverUrl}/unfollow?id=${follower.id}"));
+                                                                                      if (res.statusCode == 2000) {
+                                                                                        setState(() {
+                                                                                          followers.removeAt(index);
+                                                                                        });
+                                                                                      } else {
+                                                                                        print("Err");
+                                                                                      }
+                                                                                    },
+                                                                                    child: const Text("Remove"))
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        );
+                                                                      });
+                                                            } else {
+                                                              return const Center(
+                                                                  child:
+                                                                      CircularProgressIndicator());
+                                                            }
+                                                          }),
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                        child: Column(
+                                          children: [
+                                            Text(pUser.followersCount
+                                                .toString()),
+                                            const Text("Followers")
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),

@@ -22,64 +22,65 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextFormField(
-              keyboardType: TextInputType.number,
-              maxLength: codeSent ? 6 : 10,
-              controller: _controller,
-              decoration: InputDecoration(
-                  counterText: "",
-                  label: codeSent
-                      ? const Text("Enter Code")
-                      : const Text("Enter Phone Number"),
-                  border: const OutlineInputBorder(
-                    borderSide: BorderSide(),
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                  )),
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          var phone = _controller.text.trim().toString();
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextFormField(
+            keyboardType: TextInputType.number,
+            maxLength: codeSent ? 6 : 10,
+            controller: _controller,
+            decoration: InputDecoration(
+                counterText: "",
+                label: codeSent
+                    ? const Text("Enter Code")
+                    : const Text("Enter Phone Number"),
+                border: const OutlineInputBorder(
+                  borderSide: BorderSide(),
+                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                )),
+          ),
+          Row(
+            children: [
+              Expanded(
+                  child: ElevatedButton(
+                      onPressed: () async {
+                        var phone = _controller.text.trim().toString();
 
-                          if (!codeSent) {
-                            var uri = Uri.parse(
-                                "${Constants.serverUrl}/exists/$phone");
-                            var response = await http.get(uri);
-                            exists = response.statusCode == 200 ? true : false;
+                        if (!codeSent) {
+                          var uri = Uri.parse(
+                              "${Constants.serverUrl}/exists/$phone");
+                          var response = await http.get(uri);
+                          exists = response.statusCode == 200 ? true : false;
 
-                            if (exists) {
-                              if (phone.length == 10) {
-                                verifyPhone(phone);
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text("User Not Found")));
+                          if (exists) {
+                            if (phone.length == 10) {
+                              verifyPhone(phone);
                             }
                           } else {
-                            if (phone.length == 6) {
-                              logIn(phone);
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("User Not Found")));
                           }
-                        },
-                        child: codeSent
-                            ? const Text("LogIn")
-                            : const Text("Send OTP")))
-              ],
-            )
-          ],
+                        } else {
+                          if (phone.length == 6) {
+                            logIn(phone);
+                          }
+                        }
+                      },
+                      child: codeSent
+                          ? const Text("LogIn")
+                          : const Text("Send OTP")))
+            ],
+          )
+        ],
+    ),
         ),
       ),
-    ));
+    );
   }
 
   void verifyPhone(String phoneNumber) async {

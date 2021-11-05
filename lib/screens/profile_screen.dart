@@ -199,7 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                                                 ElevatedButton(
                                                                                     onPressed: () async {
                                                                                       var res = await http.delete(Uri.parse("${Constants.serverUrl}/unfollow?id=${follower.id}"));
-                                                                                      if (res.statusCode == 2000) {
+                                                                                      if (res.statusCode == 200) {
                                                                                         setState(() {
                                                                                           followers.removeAt(index);
                                                                                         });
@@ -307,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                                                             ElevatedButton(
                                                                                 onPressed: () async {
                                                                                   var res = await http.delete(Uri.parse("${Constants.serverUrl}/unfollow?id=${following.id}"));
-                                                                                  if (res.statusCode == 2000) {
+                                                                                  if (res.statusCode == 200) {
                                                                                     setState(() {
                                                                                       followings.removeAt(index);
                                                                                     });

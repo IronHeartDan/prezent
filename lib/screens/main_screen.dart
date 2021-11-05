@@ -31,12 +31,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
+    return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: TabBarView(
-          controller: _tabController,
-          children: const [HomeScreen(), SearchScreen(), ProfileScreen()]),
+      body: SafeArea(
+        child: TabBarView(
+            controller: _tabController,
+            children: const [HomeScreen(), SearchScreen(), ProfileScreen()]),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
@@ -96,7 +97,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           }
         },
       ),
-    ));
+    );
   }
 
   void LogOut() {

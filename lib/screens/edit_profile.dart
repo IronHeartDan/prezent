@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:prezent/classes/p_user.dart';
 import 'package:http/http.dart' as http;
+import 'package:prezent/classes/p_user.dart';
 import 'package:prezent/constants.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() {
       _controllerEmail.text = widget.pUser.email!;
       _controllerUsername.text = widget.pUser.username;
-      _controllerPhone.text = widget.pUser.numberofpost!.toString();
+      _controllerPhone.text = widget.pUser.number!.toString();
       _controllerFullname.text = widget.pUser.fullname;
     });
     super.initState();
@@ -52,15 +52,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          appBar: AppBar(
-            title: const Text("Edit Profile"),
-            systemOverlayStyle: const SystemUiOverlayStyle(
-                statusBarBrightness: Brightness.light),
-          ),
-          body: SizedBox(
+    return Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          title: const Text("Edit Profile"),
+          systemOverlayStyle:
+              const SystemUiOverlayStyle(statusBarBrightness: Brightness.light),
+        ),
+        body: SafeArea(
+          child: SizedBox(
             width: double.infinity,
             height: double.infinity,
             child: SingleChildScrollView(
@@ -147,7 +147,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       "emailaddress": _controllerEmail.text
                                           .trim()
                                           .toString(),
-                                      "numberofpost": _controllerPhone.text
+                                      "phonenumber": _controllerPhone.text
                                           .trim()
                                           .toString()
                                     };
@@ -159,6 +159,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         },
                                         body: jsonEncode(body));
                                     if (res.statusCode == 200) {
+                                      setState(() {
+                                        widget.pUser = PUser.fromJson(
+                                            json.decode(res.body));
+                                      });
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(const SnackBar(
                                               content: Text("Sucess")));
@@ -177,7 +181,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
             ),
-          )),
-    );
+          ),
+        ));
   }
 }
